@@ -1,0 +1,12 @@
+google-cloud-secret-manager
+google-cloud-core
+google-cloud-bigquery 
+requests
+flask
+flask-cors
+gunicorn
+python-dotenv
+secret_manager
+python-dotenv
+pandas
+pandas_gbq

@@ -1,0 +1,26 @@
+#
+docker buildx build --platform linux/amd64 -t init-waterfall:latest -f Dockerfile .
+
+#
+docker tag init-waterfall us-central1-docker.pkg.dev/qa-cdp-mx/clay-enrichment-repo/init-waterfall:latest
+
+#
+docker push us-central1-docker.pkg.dev/qa-cdp-mx/clay-enrichment-repo/init-waterfall:latest  
+
+
+
+gcloud run deploy clay-enrichment \
+  --image us-central1-docker.pkg.dev/qa-cdp-mx/clay-enrichment-repo/init_waterfall:latest \
+  --function main \
+  --base-image python310 \
+  --build-service-account projects/qa-cdp-mx/serviceAccounts/qa-cdp-mx@qa-cdp-mx.iam.gserviceaccount.com\
+  --region us-central1\
+  --set-env-vars "GOOGLE_CLOUD_PROJECT_ID=qa-cdp-mx"\
+  --set-env-vars "BIGQUERY_DATASET=raw_in_scrapper"\
+  --set-env-vars "SOURCE_TABLE_NAME=clay_scraped_companies"\
+  --set-env-vars "DESTINATION_TABLE_NAME=clay_contacts_info"\
+
+
+  gcloud projects add-iam-policy-binding qa-cdp-mx \
+  --member="serviceAccount:qa-cdp-mx@qa-cdp-mx.iam.gserviceaccount.com" \
+  --role="roles/aiplatform.user"
