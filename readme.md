@@ -6,7 +6,8 @@ Este proyecto ha sido transformado de un scraper batch a una API REST con Flask.
 waterfall-enrichment/
 ├── .env                    # Variables de entorno (crear manualmente)
 ├── config.py              # Configuración y variables de entorno
-├── linkedin_scraper.py    # Clase principal del scraper
+├── pub_sub_services.py    # Clase principal para el manejo de pubsub
+├── bigquery_services.py    # Clase principal para el manejo con bigquery
 ├── main.py                # API Flask
 ├── requirements.txt       # Dependencias (actualizado)
 └── README_refactorizado.md # Este archivo
