@@ -77,7 +77,7 @@ def get_companies_from_bigquery():
         #batch_size = data.get('batch_size', 1000)
         batch_size = request.args.get('batch_size', 1000)
         
-        bigquery_service = get_services()
+        bigquery_service, _ = get_services()
         # Obtener empresas no scrapeadas
         companies = bigquery_service.obtener_empresas_no_scrapeadas_batch(batch_size, Config.SOURCE_TABLE_NAME)
         
