@@ -10,10 +10,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar archivo de requerimientos primero (para aprovechar cache de Docker)
-COPY requirements.txt ./src/
+COPY requirements.txt ./
 
 # Instalar dependencias de Python
-RUN pip install --no-cache-dir -r ./src/requirements.txt
+RUN pip install --no-cache-dir -r ./requirements.txt
 
 # Copiar el código de la aplicación
 COPY src/ ./src

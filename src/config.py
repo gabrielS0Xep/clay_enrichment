@@ -18,11 +18,10 @@ class Config:
     BIGQUERY_DATASET = os.getenv('BIGQUERY_DATASET', 'raw_in_scrapper')
     SOURCE_TABLE_NAME = os.getenv('GOOGLE_BIGQUERY_TABLE','clay_scraped_companies')
     DESTINATION_TABLE_NAME = os.getenv("GOOGLE_BIGQUERY_TABLE_DESTINATION","clay_scraped_contacts")
-    
+    PUBSUB_TOPIC_CONTACTS = os.getenv('PUBSUB_TOPIC_CONTACTS', 'enriched_contacts')
 
     """Clase de configuración para el LinkedIn Scraper API"""
-    #secretManager = SecretManager(project=GOOGLE_CLOUD_PROJECT_ID)
-    # API Keys
+   
     # scrapper_secret = secretManager.get_secret('linkedin_scrapper')
 
 

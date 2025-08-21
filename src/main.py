@@ -3,8 +3,11 @@ from flask_cors import CORS
 from config import Config
 import logging
 from bigquery_services import BigQueryService
+from pub_sub_services import PubSubService
 import time
 from datetime import datetime
+
+import pub_sub_services
 
 
 
@@ -28,12 +31,16 @@ def get_services():
             project=Config.GOOGLE_CLOUD_PROJECT_ID,
             dataset=Config.BIGQUERY_DATASET
         )
+        pub_sub_services = PubSubService(
+            project_id=Config.GOOGLE_CLOUD_PROJECT_ID,
+            topic_name=Config.PUBSUB_TOPIC_NAME
+        )
         logger.info("✅ BigQuery Service inicializado correctamente")
     except Exception as e:
         logger.error(f"❌ Error inicializando servicios: {e}")
         raise
 
-    return bigquery_service
+    return bigquery_service , pub_sub_services
 
 def validate_request_data(request):
     if not request.is_json:
@@ -154,7 +161,42 @@ def patch_companies_in_bigquery(biz_identifier):
 @app.route("/contacts", methods=['POST'])
 def post_contacts_to_bigquery():
     """
-        Insertar datos en BigQuery
+        Insertar los datos en bigquery mediante la publicacion de los mismos en pubsub
+        para evitar bloqueos de bigquery
+
+        Body JSON(Requerido):
+        {
+    "biz_name": "Nombre de la empresa",
+    "biz_identifier": "Identificador de la empresa",
+    "full_name": "Nombre Completo ",
+    "role": "Rol del contacto",
+    "phone_number": "Numero de telefono parseado sin espacios ni guiones ni caracteres especiales",
+    "cat": "Categoria",
+    "web_linkedin_url": "URL de linkedin",
+    "phone_exists": True,
+    "src_scraped_name": "Nombre de la fuente donde se extrajo el contacto"
+  }
+
+    Retorna:
+    {
+        "success": True,
+        "timestamp": datetime.now().isoformat()
+    }
+
+    Si hay un error, retorna:
+    {
+        "success": False,
+        "error": "Error interno del servidor",
+        "timestamp": datetime.now().isoformat()
+    }
+
+    Si el body no es JSON, retorna:
+
+    {
+        "success": False,
+        "error": "Content-Type debe ser application/json",
+        "timestamp": datetime.now().isoformat()
+    }
         """
     start_time = time.time()
     
@@ -168,14 +210,30 @@ def post_contacts_to_bigquery():
 
         logger.info(f"✅ Iniciando inserción de contactos en BigQuery")
 
-        bigquery_service = get_services()
+        _ , pub_sub_services = get_services()
 
         data = request.get_json()
+        
+        data = {
+            "biz_name": data.get("biz_name"),
+            "biz_identifier": data.get("biz_identifier"),
+            "full_name": data.get("full_name"),
+            "role": data.get("role"),
+            "phone_number": data.get("phone_number"),
+            "cat": data.get("cat"),
+            "web_linkedin_url": data.get("web_linkedin_url"),
+            "src_scraped_dt": int(datetime.now().timestamp() * 1000000),            
+            "src_scraped_name": data.get("src_scraped_name"),
+            "phone_flg": data.get("phone_exists"),
+        }
         
         # Debug: verificar estructura de datos
         logger.info(f"✅ Tipo de datos recibidos: {type(data)}")
         logger.info(f"✅ Datos recibidos: {data}")
 
+        pub_sub_services.publish_message(data)
+
+        """
         bigquery_service.insertar_contactos_en_bigquery(Config.DESTINATION_TABLE_NAME, data)
 
         logger.info(f"✅ Contactos insertados correctamente: {len(data)}")
@@ -184,9 +242,19 @@ def post_contacts_to_bigquery():
             "success": True,
             "timestamp": datetime.now().isoformat()
         }), 200
-    
+        """# Publicar mensaje en Pub/Sub
+        publish_result = pub_sub_services.publish_message(data)
+        
+        logger.info(f"✅ Mensaje publicado exitosamente en Pub/Sub. Message ID: {publish_result['message_id']}")
+        return jsonify({
+            "success": True,
+            "message": "Datos enviados exitosamente a Pub/Sub",
+            "message_id": publish_result["message_id"],
+            "timestamp": datetime.now().isoformat()
+        }), 200
+        
     except Exception as error_message:
-        print(f"Error al insertar datos en BigQuery: {error_message}")
+        print(f"Error al publicar mensaje en Pub/Sub, Message ID: {publish_result['message_id']}")
         return jsonify({
             "success": False,
             "error": f"Error interno del servidor: {error_message}",

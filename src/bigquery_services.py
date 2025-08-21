@@ -197,5 +197,7 @@ class BigQueryService:
             logger.error(f"❌ Error actualizando empresa scrapeada: {e}")
             raise
             
-            
+    def push_to_pubsub(self, data:Dict):
+        """Push data to pubsub"""
+        
     
