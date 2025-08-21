@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from math import log
 import os
 import pandas as pd
@@ -62,14 +62,16 @@ class BigQueryService:
 
         # Schema completo de la tabla linkedin_info
         schema = [
-            bigquery.SchemaField("biz_identifier", "STRING", mode="NULLABLE"),
+            bigquery.SchemaField("biz_identifier", "STRING", mode="R"),
             bigquery.SchemaField("biz_name", "STRING", mode="REQUIRED"),
             bigquery.SchemaField("full_name", "STRING", mode="NULLABLE"),
             bigquery.SchemaField("role", "STRING", mode="NULLABLE"),
             bigquery.SchemaField("phone_number", "STRING", mode="NULLABLE"),
             bigquery.SchemaField("cat", "STRING", mode="NULLABLE"), 
-            bigquery.SchemaField("web_linkedin_url", "STRING", mode="REQUIRED"),
+            bigquery.SchemaField("web_linkedin_url", "STRING", mode="NULLABLE"),
             bigquery.SchemaField("src_scraped_dt", "TIMESTAMP", mode="REQUIRED"),
+            bigquery.SchemaField("src_scraped_name", "STRING", mode="NULLABLE"),
+            bigquery.SchemaField("phone_flg", "BOOLEAN", mode="NULLABLE")
         ]
 
         # Crear referencia a la tabla
@@ -103,7 +105,7 @@ class BigQueryService:
         try:
             
             # Query para obtener todas las empresas de una vez
-            where_clause = "contact_found_flg = 0 or contact_found_flg is null"
+            where_clause = "contact_found_flg = FALSE or contact_found_flg is null and scrapping_d is null"
             query = f"SELECT biz_identifier, biz_name FROM `{project_id}.{dataset_id}.{table_id}` WHERE {where_clause} LIMIT {batch_size}"
 
             query_job = self.__bq_client.query(query)
@@ -135,7 +137,9 @@ class BigQueryService:
                     'phone_number': contacto['phone_number'],
                     'cat': contacto['cat'],
                     'web_linkedin_url': contacto['web_linkedin_url'],
-                    'src_scraped_dt': datetime.now()
+                    'src_scraped_dt': datetime.now(),
+                    'src_scraped_name' : contacto['src_scraped_name'],
+                    'phone_flg' : str(contacto['phone_number']) != ""
                 })
             
             # Convertir a DataFrame
@@ -166,18 +170,20 @@ class BigQueryService:
             # Query para actualizar
             query = f"""
             UPDATE `{project_id}.{dataset_id}.{table_id}`
-            SET scrapping_date = @scraping_date, linkedin_found = @linkedin_found
+            SET scrapping_d = @scraping_d, contact_found_flg = @contact_found_flg
             WHERE biz_identifier = @biz_identifier AND biz_name = @biz_name
             """
-            
+            logger.info(f"Dato antes de pasar if: {contact_found_flg}")
             # Forzamos tipo bool seguro para evitar errores de tipo
             contact_found_flg = contact_found_flg if isinstance(contact_found_flg, bool) else bool(contact_found_flg)
+            
+            logger.info(f"Dato post Pasar if: {contact_found_flg}")
 
             job_config = bigquery.QueryJobConfig(
                 query_parameters=[
                     bigquery.ScalarQueryParameter("biz_identifier", "STRING", biz_identifier),
                     bigquery.ScalarQueryParameter("biz_name", "STRING", biz_name),
-                    bigquery.ScalarQueryParameter("scraping_date", "TIMESTAMP", datetime.now()),
+                    bigquery.ScalarQueryParameter("scraping_d", "DATE", date.today()),
                     bigquery.ScalarQueryParameter("contact_found_flg", "BOOL", contact_found_flg),
                 ]
             )
@@ -189,6 +195,7 @@ class BigQueryService:
             
         except Exception as e:
             logger.error(f"❌ Error actualizando empresa scrapeada: {e}")
+            raise
             
             
     

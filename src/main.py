@@ -98,8 +98,8 @@ def get_companies_from_bigquery():
         }), 500
 
 
-@app.route("/companies", methods=['PATCH'])
-def patch_companies_in_bigquery():
+@app.route("/companies/<string:biz_identifier>", methods=['PATCH'])
+def patch_companies_in_bigquery(biz_identifier):
     """
         Actualizar empresas en BigQuery
         """
@@ -119,15 +119,19 @@ def patch_companies_in_bigquery():
         
         data = request.get_json()
 
-        biz_identifier = data.get('biz_identifier')
         biz_name = data.get('biz_name')
-        contact_found_flg = data.get('contact_found_flg')
+        contact_found_flg = str(data.get('contact_found_flg')).replace("None", "") != ""
+        
+        logger.info(f"✅ contact_found_flg parseada: {contact_found_flg}")
+        logger.info(f"✅ contact_found_flg original: {str(data.get('contact_found_flg'))}")
+        
         
         # Debug: verificar estructura de datos
         logger.info(f"✅ Tipo de datos recibidos: {type(data)}")
         logger.info(f"✅ Datos recibidos: {data}")
         
-        bigquery_service.actualizar_empresas_en_bigquery(Config.SOURCE_TABLE_NAME, biz_identifier, biz_name, contact_found_flg)
+
+        bigquery_service.actualizar_empresas_scrapeadas(Config.SOURCE_TABLE_NAME, biz_identifier, biz_name, contact_found_flg)
 
         return jsonify({
             "success": True,
@@ -171,6 +175,7 @@ def post_contacts_to_bigquery():
         # Debug: verificar estructura de datos
         logger.info(f"✅ Tipo de datos recibidos: {type(data)}")
         logger.info(f"✅ Datos recibidos: {data}")
+
         bigquery_service.insertar_contactos_en_bigquery(Config.DESTINATION_TABLE_NAME, data)
 
         logger.info(f"✅ Contactos insertados correctamente: {len(data)}")
