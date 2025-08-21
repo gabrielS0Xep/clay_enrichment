@@ -1,7 +1,5 @@
 import os
 from google.cloud import pubsub_v1
-from typing import Callable
-import futures
 
 class PubSubService:
     def __init__(self, project_id:str, topic_name:str):
