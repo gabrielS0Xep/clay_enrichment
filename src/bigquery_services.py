@@ -105,7 +105,7 @@ class BigQueryService:
         try:
             
             # Query para obtener todas las empresas de una vez
-            where_clause = "contact_found_flg = 0 or contact_found_flg is null and scrapping_d is null"
+            where_clause = "(contact_found_flg = 0 or contact_found_flg is null) and scrapping_d is null"
             query = f"SELECT biz_identifier, biz_name FROM `{project_id}.{dataset_id}.{table_id}` WHERE {where_clause} LIMIT {batch_size}"
 
             query_job = self.__bq_client.query(query)
