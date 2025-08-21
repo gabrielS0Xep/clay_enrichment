@@ -32,7 +32,7 @@ def get_services():
         )
         pub_sub_services = PubSubService(
             project_id="qa-cdp-mx",
-            topic_name=Config.PUBSUB_TOPIC_NAME
+            topic_name=Config.PUBSUB_TOPIC_CONTACTS
         )
         logger.info("✅ BigQuery Service inicializado correctamente")
     except Exception as e:
