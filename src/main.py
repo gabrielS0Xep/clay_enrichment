@@ -31,7 +31,7 @@ def get_services():
             dataset=Config.BIGQUERY_DATASET
         )
         pub_sub_services = PubSubService(
-            project_id=Config.GOOGLE_CLOUD_PROJECT_ID,
+            project_id="qa-cdp-mx",
             topic_name=Config.PUBSUB_TOPIC_NAME
         )
         logger.info("✅ BigQuery Service inicializado correctamente")
