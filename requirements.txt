@@ -10,4 +10,3 @@ gunicorn
 python-dotenv
 pandas
 pandas_gbq
-functools

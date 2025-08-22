@@ -36,32 +36,23 @@ CORS(app)  # Habilitar CORS para requests cross-origin
 bigquery_service = None
 
 
-def get_pub_sub_service():
+def get_services():
     try: 
-        # Inicializar Pub/Sub service
-        pub_sub_services = PubSubService(
-            project_id= Config.GOOGLE_CLOUD_PROJECT_ID,
-            topic_name=Config.PUBSUB_TOPIC_CONTACTS
-        )
-        logger.info("✅ Pub/Sub Service inicializado correctamente")
-    except Exception as e:
-        logger.error(f"❌ Error inicializando servicios: {e}")
-        raise
-
-    return pub_sub_services
-
-def get_bigquery_service():
-    try:
+        # Inicializar BigQuery service
         bigquery_service = BigQueryService(
             project=Config.GOOGLE_CLOUD_PROJECT_ID,
             dataset=Config.BIGQUERY_DATASET
+        )
+        pub_sub_services = PubSubService(
+            project_id= Config.GOOGLE_CLOUD_PROJECT_ID,
+            topic_name=Config.PUBSUB_TOPIC_CONTACTS
         )
         logger.info("✅ BigQuery Service inicializado correctamente")
     except Exception as e:
         logger.error(f"❌ Error inicializando servicios: {e}")
         raise
-    
-    return bigquery_service
+
+    return bigquery_service , pub_sub_services
 
 def validate_request_data(request):
     if not request.is_json:
@@ -99,7 +90,7 @@ def get_companies_from_bigquery():
         #batch_size = data.get('batch_size', 1000)
         batch_size = request.args.get('batch_size', 1000)
         
-        bigquery_service = get_bigquery_service()
+        bigquery_service, _ = get_services()
         # Obtener empresas no scrapeadas
         companies = bigquery_service.obtener_empresas_no_scrapeadas_batch(batch_size, Config.SOURCE_TABLE_NAME)
         
@@ -144,7 +135,7 @@ def patch_companies_in_bigquery(biz_identifier):
             
         logger.info(f"✅ Iniciando actualización de empresas en BigQuery")
         
-        bigquery_service = get_bigquery_service()
+        bigquery_service, _ = get_services()
         
         data = request.get_json()
 
@@ -232,7 +223,7 @@ def post_contacts_to_bigquery():
 
         logger.info(f"✅ Iniciando inserción de contactos en BigQuery")
 
-        pub_sub_services = get_pub_sub_service()
+        _ , pub_sub_services = get_services()
 
         data = request.get_json()
         
