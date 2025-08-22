@@ -120,45 +120,6 @@ class BigQueryService:
             result = {}
             return result
 
-    def insertar_contactos_en_bigquery(self, table_name:str, data:List[Dict]):
-        """Insertar contactos en BigQuery"""
-        dataset_id = self.__dataset
-        table_id = table_name
-
-        try:
-            # Preparar datos para insertar
-            datos_insertar = []
-            for contacto in data:
-                datos_insertar.append({
-                    'biz_name': contacto['biz_name'],
-                    'biz_identifier': contacto['biz_identifier'],
-                    'full_name': contacto['full_name'],
-                    'role': contacto['role'],
-                    'phone_number': contacto['phone_number'],
-                    'cat': contacto['cat'],
-                    'web_linkedin_url': contacto['web_linkedin_url'],
-                    'src_scraped_dt': datetime.now(),
-                    'src_scraped_name' : contacto['src_scraped_name'],
-                    'phone_flg' : str(contacto['phone_number']) != ""
-                })
-            
-            # Convertir a DataFrame
-            df_contactos = pd.DataFrame(datos_insertar)
-            
-            # Insertar en BigQuery
-            destination_table = f'{self.__project_id}.{dataset_id}.{table_id}'
-            
-            df_contactos.to_gbq(
-                destination_table=destination_table,
-                project_id=self.__project_id,
-                if_exists='append'
-            )
-            
-            logger.info(f"✅ {len(data)} contactos insertados en tabla de control")
-        
-        except Exception as error_message:
-            logger.error(f"❌ Error al insertar datos en BigQuery: {error_message}")
-            raise
 
     def actualizar_empresas_scrapeadas(self, table_name:str, biz_identifier:str, biz_name:str, contact_found_flg:bool):
         """Actualiza los datos de scraping de una empresa en la tabla de control"""
@@ -184,7 +145,7 @@ class BigQueryService:
                     bigquery.ScalarQueryParameter("biz_identifier", "STRING", biz_identifier),
                     bigquery.ScalarQueryParameter("biz_name", "STRING", biz_name),
                     bigquery.ScalarQueryParameter("scraping_d", "DATE", date.today()),
-                    bigquery.ScalarQueryParameter("contact_found_flg", "BOOL", contact_found_flg),
+                    bigquery.ScalarQueryParameter("contact_found_flg", "INT64", int(contact_found_flg,False)),
                 ]
             )
             
