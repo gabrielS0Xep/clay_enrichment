@@ -141,7 +141,7 @@ class BigQueryService:
                     bigquery.ScalarQueryParameter("biz_identifier", "STRING", biz_identifier),
                     bigquery.ScalarQueryParameter("biz_name", "STRING", biz_name),
                     bigquery.ScalarQueryParameter("scraping_d", "DATE", date.today()),
-                    bigquery.ScalarQueryParameter("contact_found_flg", "INT64", int(contact_found_flg,0)),
+                    bigquery.ScalarQueryParameter("contact_found_flg", "INT64", contact_found_flg),
                 ]
             )
             
