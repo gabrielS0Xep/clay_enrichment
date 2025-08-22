@@ -6,7 +6,20 @@ from bigquery_services import BigQueryService
 from pub_sub_services import PubSubService
 import time
 from datetime import datetime
+from functools import wraps
 
+def require_api_key(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        # La API Key se espera en el encabezado 'X-API-Key'
+        key_from_request = request.headers.get('X-API-Key')
+        
+        # Compara la clave de la solicitud con la clave almacenada
+        if key_from_request and key_from_request == Config.API_KEY:
+            return func(*args, **kwargs)
+        else:
+            return jsonify({"error": "Unauthorized"}), 401
+    return decorated_function
 
 
 
@@ -105,6 +118,7 @@ def get_companies_from_bigquery():
 
 
 @app.route("/companies/<string:biz_identifier>", methods=['PATCH'])
+@require_api_key
 def patch_companies_in_bigquery(biz_identifier):
     """
         Actualizar empresas en BigQuery
@@ -121,7 +135,7 @@ def patch_companies_in_bigquery(biz_identifier):
             
         logger.info(f"✅ Iniciando actualización de empresas en BigQuery")
         
-        bigquery_service = get_services()
+        bigquery_service, _ = get_services()
         
         data = request.get_json()
 
@@ -158,6 +172,7 @@ def patch_companies_in_bigquery(biz_identifier):
 
 
 @app.route("/contacts", methods=['POST'])
+@require_api_key
 def post_contacts_to_bigquery():
     """
         Insertar los datos en bigquery mediante la publicacion de los mismos en pubsub

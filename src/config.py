@@ -11,13 +11,16 @@ from secret_manager import SecretManager
 load_dotenv()
 
 class Config:
+    # Configuración API Key
+    API_KEY = os.getenv('API_KEY', 'MxJq2{!8z^3YJ8oj]cP2GI')
 
-
+    # Configuración Google Cloud Project ID
     GOOGLE_CLOUD_PROJECT_ID = os.getenv('GOOGLE_CLOUD_PROJECT_ID','qa-cdp-mx')
     # Configuración BigQuery
     BIGQUERY_DATASET = os.getenv('BIGQUERY_DATASET', 'raw_in_scrapper')
     SOURCE_TABLE_NAME = os.getenv('GOOGLE_BIGQUERY_TABLE','clay_scraped_companies')
     DESTINATION_TABLE_NAME = os.getenv("GOOGLE_BIGQUERY_TABLE_DESTINATION","clay_scraped_contacts")
+    # Configuración Pub/Sub
     PUBSUB_TOPIC_CONTACTS = os.getenv('PUBSUB_TOPIC_CONTACTS', 'enriched_contacts')
 
     """Clase de configuración para el LinkedIn Scraper API"""
