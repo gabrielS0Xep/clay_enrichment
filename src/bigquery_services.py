@@ -134,18 +134,14 @@ class BigQueryService:
             SET scrapping_d = @scraping_d, contact_found_flg = @contact_found_flg
             WHERE biz_identifier = @biz_identifier AND biz_name = @biz_name
             """
-            logger.info(f"Dato antes de pasar if: {contact_found_flg}")
-            # Forzamos tipo bool seguro para evitar errores de tipo
-            contact_found_flg = contact_found_flg if isinstance(contact_found_flg, bool) else bool(contact_found_flg)
             
-            logger.info(f"Dato post Pasar if: {contact_found_flg}")
 
             job_config = bigquery.QueryJobConfig(
                 query_parameters=[
                     bigquery.ScalarQueryParameter("biz_identifier", "STRING", biz_identifier),
                     bigquery.ScalarQueryParameter("biz_name", "STRING", biz_name),
                     bigquery.ScalarQueryParameter("scraping_d", "DATE", date.today()),
-                    bigquery.ScalarQueryParameter("contact_found_flg", "INT64", int(contact_found_flg,False)),
+                    bigquery.ScalarQueryParameter("contact_found_flg", "INT64", int(contact_found_flg,0)),
                 ]
             )
             

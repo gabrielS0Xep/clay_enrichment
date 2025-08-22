@@ -140,10 +140,9 @@ def patch_companies_in_bigquery(biz_identifier):
         data = request.get_json()
 
         biz_name = data.get('biz_name')
-        contact_found_flg = str(data.get('contact_found_flg')).replace("None", "") != ""
+        contact_found_flg = int(data.get('contact_found_flg'))
         
         logger.info(f"✅ contact_found_flg parseada: {contact_found_flg}")
-        logger.info(f"✅ contact_found_flg original: {str(data.get('contact_found_flg'))}")
         
         
         # Debug: verificar estructura de datos
