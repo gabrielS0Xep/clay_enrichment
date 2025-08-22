@@ -223,7 +223,7 @@ def post_contacts_to_bigquery():
             "web_linkedin_url": data.get("web_linkedin_url"),
             "src_scraped_dt": int(datetime.now().timestamp() * 1000000),            
             "src_scraped_name": data.get("src_scraped_name"),
-            "phone_flg": data.get("phone_exists"),
+            "phone_flg": int(data.get("phone_exists", False)),
         }
         
         # Debug: verificar estructura de datos
