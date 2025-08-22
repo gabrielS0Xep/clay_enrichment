@@ -230,8 +230,6 @@ def post_contacts_to_bigquery():
         logger.info(f"✅ Tipo de datos recibidos: {type(data)}")
         logger.info(f"✅ Datos recibidos: {data}")
 
-        pub_sub_services.publish_message(data)
-
         """
         bigquery_service.insertar_contactos_en_bigquery(Config.DESTINATION_TABLE_NAME, data)
 

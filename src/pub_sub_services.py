@@ -1,5 +1,6 @@
 import os
 from google.cloud import pubsub_v1
+import json
 
 class PubSubService:
     def __init__(self, project_id:str, topic_name:str):
@@ -10,8 +11,7 @@ class PubSubService:
 
     def publish_message(self, data : dict):
         """Publish message to pubsub"""
-        data = data.encode("utf-8")
-        future = self.publisher.publish(self.topic_name, data)
+        future = self.publisher.publish(self.topic_name, json.dumps(data).encode("utf-8"))
         
         try:
             future.result()
