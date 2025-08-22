@@ -16,8 +16,8 @@ class PubSubService:
         future = self.publisher.publish(self.topic_path, json.dumps(data).encode("utf-8"))
         
         try:
-            future.result()
-            return True
+            message_id = future.result()
+            return message_id
         except Exception as error_message:
             raise error_message
     

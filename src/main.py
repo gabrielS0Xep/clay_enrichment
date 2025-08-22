@@ -246,7 +246,7 @@ def post_contacts_to_bigquery():
         return jsonify({
             "success": "True",
             "message": "Datos enviados exitosamente a Pub/Sub",
-            "message_id": publish_result["message_id"],
+            "message_id": publish_result,
             "timestamp": datetime.now().isoformat()
         }), 200
         
