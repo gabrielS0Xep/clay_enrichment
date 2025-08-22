@@ -140,7 +140,7 @@ def patch_companies_in_bigquery(biz_identifier):
         data = request.get_json()
 
         biz_name = data.get('biz_name')
-        logger.info(f"contact_found_flg sin parsear: {data.get('contact_found_flg')}")
+        
         contact_found_flg = str(data.get('contact_found_flg'))
         contact_found_flg = int(contact_found_flg)
         
