@@ -150,9 +150,15 @@ class BigQueryService:
             
             logger.info(f"✅ Empresa {biz_name} actualizada en tabla de control")
             
-        except Exception as e:
-            logger.error(f"❌ Error actualizando empresa scrapeada: {e}")
-            raise
+        except Exception as error_message:
+            logger.error(f"❌ Error actualizando empresa scrapeada: {error_message}")
+            
+            # Manejar específicamente errores de rate limiting (400)
+            error_str = str(error_message).lower()
+            if "quota exceeded" in error_str or "rate limit" in error_str or "too many requests" or "400" in error_str:
+                raise Exception("RATE_LIMIT_EXCEEDED: BigQuery quota exceeded. Please try again later.")
+            else:
+                raise Exception(f"BIGQUERY_ERROR: {error_message}")
             
     def push_to_pubsub(self, data:Dict):
         """Push data to pubsub"""
