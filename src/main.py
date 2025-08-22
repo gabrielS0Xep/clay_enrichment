@@ -242,16 +242,16 @@ def post_contacts_to_bigquery():
         """# Publicar mensaje en Pub/Sub
         publish_result = pub_sub_services.publish_message(data)
         
-        logger.info(f"✅ Mensaje publicado exitosamente en Pub/Sub. Message ID: {publish_result['message_id']}")
+        logger.info(f"✅ Mensaje publicado exitosamente en Pub/Sub.")
         return jsonify({
-            "success": True,
+            "success": "True",
             "message": "Datos enviados exitosamente a Pub/Sub",
             "message_id": publish_result["message_id"],
             "timestamp": datetime.now().isoformat()
         }), 200
         
     except Exception as error_message:
-        print(f"Error al publicar mensaje en Pub/Sub, Message ID: {publish_result['message_id']}")
+        print(f"Error al publicar mensaje en Pub/Sub.")
         return jsonify({
             "success": False,
             "error": f"Error interno del servidor: {error_message}",
