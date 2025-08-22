@@ -7,11 +7,13 @@ class PubSubService:
         self.project_id = project_id
         self.topic_name = topic_name
         self.publisher = pubsub_v1.PublisherClient()
-
+        self.topic_path = self.publisher.topic_path(self.project_id, self.topic_name)
 
     def publish_message(self, data : dict):
         """Publish message to pubsub"""
-        future = self.publisher.publish(self.topic_name, json.dumps(data).encode("utf-8"))
+
+       
+        future = self.publisher.publish(self.topic_path, json.dumps(data).encode("utf-8"))
         
         try:
             future.result()
