@@ -253,7 +253,7 @@ def post_contacts_to_bigquery():
     except Exception as error_message:
         print(f"Error al publicar mensaje en Pub/Sub.")
         return jsonify({
-            "success": False,
+            "success": "False",
             "error": f"Error interno del servidor: {error_message}",
             "timestamp": datetime.now().isoformat()
         }), 500
