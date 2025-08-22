@@ -54,6 +54,10 @@ def get_services():
 
     return bigquery_service , pub_sub_services
 
+def get_bigquery_service():
+    bigquery_service, _ = get_services()
+    return bigquery_service
+
 def validate_request_data(request):
     if not request.is_json:
         return jsonify({
@@ -135,7 +139,7 @@ def patch_companies_in_bigquery(biz_identifier):
             
         logger.info(f"✅ Iniciando actualización de empresas en BigQuery")
         
-        bigquery_service, _ = get_services()
+        bigquery_service = get_bigquery_service()
         
         data = request.get_json()
 
@@ -172,7 +176,6 @@ def patch_companies_in_bigquery(biz_identifier):
 
 
 @app.route("/contacts", methods=['POST'])
-@require_api_key
 def post_contacts_to_bigquery():
     """
         Insertar los datos en bigquery mediante la publicacion de los mismos en pubsub
