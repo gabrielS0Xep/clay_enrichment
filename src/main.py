@@ -142,7 +142,7 @@ def patch_companies_in_bigquery(biz_identifier):
             "biz_name": data.get("biz_name"),
             "biz_identifier": data.get("biz_identifier"),
             "contact_found_flg": data.get("contact_found_flg"),
-            "scrapping_d": f"{date.now().strftime('%Y-%m-%d')}",
+            "scrapping_d": f"{date.today().strftime('%Y-%m-%d')}",
             "_CHANGE_TYPE": "UPSERT"
         }
         
