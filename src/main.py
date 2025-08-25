@@ -4,8 +4,8 @@ from config import Config
 import logging
 from bigquery_services import BigQueryService
 from pub_sub_services import PubSubService
-import time
-from datetime import datetime
+import time 
+from datetime import datetime, date
 from functools import wraps
 
 def require_api_key(func):
@@ -44,10 +44,9 @@ def get_services():
             dataset=Config.BIGQUERY_DATASET
         )
         pub_sub_services = PubSubService(
-            project_id= Config.GOOGLE_CLOUD_PROJECT_ID,
-            topic_name=Config.PUBSUB_TOPIC_CONTACTS
-        )
-        logger.info("✅ BigQuery Service inicializado correctamente")
+            project_id= Config.GOOGLE_CLOUD_PROJECT_ID
+            )
+        logger.info("✅ Servicios inicializados correctamente")
     except Exception as e:
         logger.error(f"❌ Error inicializando servicios: {e}")
         raise
@@ -135,18 +134,21 @@ def patch_companies_in_bigquery(biz_identifier):
             
         logger.info(f"✅ Iniciando actualización de empresas en BigQuery")
         
-        bigquery_service, _ = get_services()
-        
+        _, pub_sub_services = get_services()
+        topic_name = Config.PUBSUB_TOPIC_COMPANIES
+
         data = request.get_json()
-
-        biz_name = data.get('biz_name')
-
-        contact_found_flg = str(data.get('contact_found_flg'))
-        contact_found_flg = int(contact_found_flg)
+        data = {
+            "biz_name": data.get("biz_name"),
+            "biz_identifier": data.get("biz_identifier"),
+            "contact_found_flg": data.get("contact_found_flg"),
+            "scrapping_d": f"{date.now().strftime('%Y-%m-%d')}",
+            "_CHANGE_TYPE": "UPSERT"
+        }
         
-        
+        pub_sub_services.publish_message(topic_name, data)
 
-        bigquery_service.actualizar_empresas_scrapeadas(Config.SOURCE_TABLE_NAME, biz_identifier, biz_name, contact_found_flg)
+       # bigquery_service.actualizar_empresas_scrapeadas(Config.SOURCE_TABLE_NAME, biz_identifier, biz_name, contact_found_flg)
 
         return jsonify({
             "success": True,
@@ -234,22 +236,13 @@ def post_contacts_to_bigquery():
             "src_scraped_name": data.get("src_scraped_name"),
             "phone_flg": int(data.get("phone_exists", False)),
         }
-        
+        topic_name = Config.PUBSUB_TOPIC_CONTACTS
+
         # Debug: verificar estructura de datos
         logger.info(f"✅ Tipo de datos recibidos: {type(data)}")
         logger.info(f"✅ Datos recibidos: {data}")
-
-        """
-        bigquery_service.insertar_contactos_en_bigquery(Config.DESTINATION_TABLE_NAME, data)
-
-        logger.info(f"✅ Contactos insertados correctamente: {len(data)}")
-
-        return jsonify({
-            "success": True,
-            "timestamp": datetime.now().isoformat()
-        }), 200
-        """# Publicar mensaje en Pub/Sub
-        publish_result = pub_sub_services.publish_message(data)
+        # Publicar mensaje en Pub/Sub
+        publish_result = pub_sub_services.publish_message(topic_name, data)
         
         logger.info(f"✅ Mensaje publicado exitosamente en Pub/Sub.")
         return jsonify({

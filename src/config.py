@@ -22,6 +22,7 @@ class Config:
     DESTINATION_TABLE_NAME = os.getenv("GOOGLE_BIGQUERY_TABLE_DESTINATION","clay_scraped_contacts")
     # Configuración Pub/Sub
     PUBSUB_TOPIC_CONTACTS = os.getenv('PUBSUB_TOPIC_CONTACTS', 'enriched_contacts')
+    PUBSUB_TOPIC_COMPANIES = os.getenv('PUBSUB_TOPIC_COMPANIES', 'scraped_companies')
 
     """Clase de configuración para el LinkedIn Scraper API"""
    
