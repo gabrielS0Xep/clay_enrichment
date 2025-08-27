@@ -23,8 +23,12 @@ class Config:
     # Configuración Pub/Sub
     PUBSUB_TOPIC_CONTACTS = os.getenv('PUBSUB_TOPIC_CONTACTS', 'enriched_contacts')
     PUBSUB_TOPIC_COMPANIES = os.getenv('PUBSUB_TOPIC_COMPANIES', 'scraped_companies')
+    # Configuración Cloud Tasks
+    CLOUD_TASKS_QUEUE = os.getenv('CLOUD_TASKS_QUEUE', 'waterfall-enrichment-queue')
+    CLOUD_TASKS_LOCATION = os.getenv('CLOUD_TASKS_LOCATION', 'us-central1')
+    CLOUD_TASKS_URL = os.getenv('CLOUD_TASKS_URL', 'No se ha configurado la URL de Cloud Tasks')
 
-    """Clase de configuración para el LinkedIn Scraper API"""
+    """Clase de configuración para el Waterfall Enrichment"""
    
     # scrapper_secret = secretManager.get_secret('linkedin_scrapper')
 
@@ -36,7 +40,6 @@ class Config:
     FLASK_HOST = os.getenv('FLASK_HOST', '0.0.0.0')
     PORT = int(os.getenv('PORT', '5000'))
     FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    
     
     # Timeout para requests
     REQUEST_TIMEOUT = int(os.getenv('REQUEST_TIMEOUT', '300'))  # 5 minutos

@@ -7,6 +7,7 @@ from pub_sub_services import PubSubService
 import time 
 from datetime import datetime, date
 from functools import wraps
+from cloud_tasks import CloudTasks
 
 def require_api_key(func):
     @wraps(func)
@@ -34,6 +35,8 @@ app = Flask(__name__)
 CORS(app)  # Habilitar CORS para requests cross-origin
 
 bigquery_service = None
+pub_sub_services = None
+cloud_tasks_service = None
 
 
 def get_services():
@@ -53,6 +56,18 @@ def get_services():
 
     return bigquery_service , pub_sub_services
 
+def get_cloud_tasks_service():
+    try:
+        cloud_tasks_service = CloudTasks(
+            project=Config.GOOGLE_CLOUD_PROJECT_ID,
+            location=Config.CLOUD_TASKS_LOCATION,
+            queue=Config.CLOUD_TASKS_QUEUE
+        )
+        return cloud_tasks_service
+    except Exception as e:
+        logger.error(f"❌ Error inicializando Cloud Tasks: {e}")
+        raise
+
 def validate_request_data(request):
     if not request.is_json:
         return jsonify({
@@ -68,6 +83,7 @@ def validate_request_data(request):
 def health_check():
     return {"status": "OK"}
 
+@require_api_key
 @app.route("/companies", methods=['GET'])
 def get_companies_from_bigquery():
     """
@@ -145,7 +161,9 @@ def patch_companies_in_bigquery(biz_identifier):
             "scrapping_d": f"{date.today().strftime('%Y-%m-%d')}",
             "_CHANGE_TYPE": "UPSERT"
         }
-        
+        logger.info(f"✅ Datos a publicar en Pub/Sub: {data}")
+        logger.info(f"✅ Topic name: {topic_name}")
+
         pub_sub_services.publish_message(topic_name, data)
 
        # bigquery_service.actualizar_empresas_scrapeadas(Config.SOURCE_TABLE_NAME, biz_identifier, biz_name, contact_found_flg)
@@ -259,6 +277,36 @@ def post_contacts_to_bigquery():
             "error": f"Error interno del servidor: {error_message}",
             "timestamp": datetime.now().isoformat()
         }), 500
+
+
+@app.route("/apollo_enrichment", methods=['POST'])
+def post_waterfall_enrichment():
+    """
+        Enrichment de datos mediante la publicacion de los mismos en pubsub
+        para evitar bloqueos de bigquery
+    """
+    start_time = time.time()
+    cloud_tasks_service = get_cloud_tasks_service()
+
+    data = request.get_json()
+    url = Config.CLOUD_TASKS_URL
+
+    logger.info(f"✅ Datos recibidos: {data}")
+    logger.info(f"✅ URL: {url}")
+    logger.info(f"tipo de datos: {type(data)}")
+    logger.info(f"tipo de url: {type(url)}")
+    json_payload = {
+        "biz_name": data.get("biz_name"),
+        "biz_identifier": data.get("biz_identifier"),
+        "full_name": data.get("full_name"),
+        "role": data.get("role"),
+    }
+
+    #cloud_tasks_service.create_http_task(
+     #   url=url,
+     #   json_payload=json_payload
+    #)
+
 
 
 

@@ -3,7 +3,6 @@ from math import log
 import os
 import pandas as pd
 from typing import List, Dict
-import csv
 from logging import Logger
 import logging
 from google.cloud import bigquery
