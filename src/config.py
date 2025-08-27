@@ -26,7 +26,7 @@ class Config:
     # Configuración Cloud Tasks
     CLOUD_TASKS_QUEUE = os.getenv('CLOUD_TASKS_QUEUE', 'waterfall-enrichment-queue')
     CLOUD_TASKS_LOCATION = os.getenv('CLOUD_TASKS_LOCATION', 'us-central1')
-    CLOUD_TASKS_URL = os.getenv('CLOUD_TASKS_URL', 'No se ha configurado la URL de Cloud Tasks')
+    CLOUD_TASKS_URL = os.getenv('CLOUD_TASKS_URL', 'https://api.clay.com/v3/sources/webhook/pull-in-data-from-a-webhook-6b71c86f-e6b9-47bb-a355-9d38c07488fe')
 
     """Clase de configuración para el Waterfall Enrichment"""
    

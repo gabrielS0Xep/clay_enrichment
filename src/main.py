@@ -291,21 +291,31 @@ def post_waterfall_enrichment():
     data = request.get_json()
     url = Config.CLOUD_TASKS_URL
 
-    logger.info(f"✅ Datos recibidos: {data}")
-    logger.info(f"✅ URL: {url}")
-    logger.info(f"tipo de datos: {type(data)}")
-    logger.info(f"tipo de url: {type(url)}")
-    json_payload = {
-        "biz_name": data.get("biz_name"),
-        "biz_identifier": data.get("biz_identifier"),
-        "full_name": data.get("full_name"),
-        "role": data.get("role"),
-    }
+    try:
+        logger.info(f"✅ Datos recibidos: {data}")
+        logger.info(f"✅ URL: {url}")
+        logger.info(f"tipo de datos: {type(data)}")
+        logger.info(f"tipo de url: {type(url)}")
+        json_payload = data
 
-    #cloud_tasks_service.create_http_task(
-     #   url=url,
-     #   json_payload=json_payload
-    #)
+        cloud_tasks_service.create_http_task(
+           url=url,
+           json_payload=json_payload
+        )
+        return jsonify({
+            "success": True,
+            "message": "Tarea creada correctamente",
+            "timestamp": datetime.now().isoformat()
+        }), 200
+
+
+    except Exception as error_message:
+        logger.error(f"❌ Error al crear la tarea: {error_message}")
+        return jsonify({
+            "success": False,
+            "error": f"Error interno del servidor: {error_message}",
+            "timestamp": datetime.now().isoformat()
+        }), 500
 
 
 
