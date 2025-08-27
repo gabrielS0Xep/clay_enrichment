@@ -10,4 +10,4 @@ gunicorn
 python-dotenv
 pandas
 pandas_gbq
-google
+google-cloud-tasks
