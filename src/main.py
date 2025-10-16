@@ -247,11 +247,11 @@ def post_contacts_to_bigquery():
             "biz_identifier": data.get("biz_identifier"),
             "full_name": data.get("full_name"),
             "role": data.get("role"),
-            "phone_number": data.get("phone_number"),
+            "phone_number": data.get("phone_number",""),
             "cat": data.get("cat"),
-            "web_linkedin_url": data.get("web_linkedin_url"),
+            "web_linkedin_url": data.get("web_linkedin_url",''),
             "src_scraped_dt": int(datetime.now().timestamp() * 1000000),            
-            "src_scraped_name": data.get("src_scraped_name"),
+            "src_scraped_name": data.get("src_scraped_name",""),
             "phone_flg": int(data.get("phone_exists", False)),
         }
         topic_name = Config.PUBSUB_TOPIC_CONTACTS
