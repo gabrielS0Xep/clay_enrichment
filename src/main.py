@@ -243,13 +243,13 @@ def post_contacts_to_bigquery():
         data = request.get_json()
         
         data = {
-            "biz_name": data.get("biz_name"),
-            "biz_identifier": data.get("biz_identifier"),
-            "full_name": data.get("full_name"),
-            "role": data.get("role"),
+            "biz_name": data.get("biz_name",""),
+            "biz_identifier": data.get("biz_identifier",""),
+            "full_name": data.get("full_name",""),
+            "role": data.get("role",""),
             "phone_number": data.get("phone_number",""),
-            "cat": data.get("cat"),
-            "web_linkedin_url": data.get("web_linkedin_url",''),
+            "cat": data.get("cat",""),
+            "web_linkedin_url": data.get("web_linkedin_url",""),
             "src_scraped_dt": int(datetime.now().timestamp() * 1000000),            
             "src_scraped_name": data.get("src_scraped_name",""),
             "phone_flg": int(data.get("phone_exists", False)),
