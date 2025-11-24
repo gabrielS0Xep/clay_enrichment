@@ -378,11 +378,11 @@ def post_contacts_enrichment():
         }
     """
     bigquery_service, _, cloud_tasks_service = get_services()
-    url = Config.CLOUD_WEBHOOK_CONTACTS_URL
+    url = Config.CLAY_WEBHOOK_URL
 
     headers = {
         "Content-type": "application/json",
-        Config.CLAY_WEBHOOK_CONTACTS_HEADER: Config.CLAY_WEBHOOK_CONTACTS_KEY
+        f'"{Config.CLAY_WEBHOOK_CONTACTS_HEADER}"': f'"{Config.CLAY_WEBHOOK_CONTACTS_KEY}"'
     }
     
 
