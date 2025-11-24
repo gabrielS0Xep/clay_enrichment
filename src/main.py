@@ -406,7 +406,7 @@ def post_contacts_enrichment():
     
     contacts_not_scraped = contacts_already_scraped[contacts_already_scraped.web_linkedin_url.isin(contacts_urls)]
  
-    if not contacts_not_scraped:
+    if contacts_not_scraped.empty:
         return jsonify({
             "success": True,
             "message": "Todas las contactos ya fueron scrapeadas",
