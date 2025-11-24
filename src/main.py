@@ -387,6 +387,7 @@ def post_contacts_enrichment():
     
 
     data = request.get_json()
+    logger.info(f"✅ Datos recibidos: {data}")
     if not data.get("contacts"):
         return jsonify({
             "success": False,
@@ -395,17 +396,19 @@ def post_contacts_enrichment():
         }), 400
 
     contacts = data.get("contacts")
+    logger.info(f"✅ Contacts: {contacts}")
     contacts_urls = [
         contact.get("web_linkedin_url")
         for contact in contacts
         if contact.get("web_linkedin_url")
     ]
+    logger.info(f"✅ Contacts URLs: {contacts_urls}")
 
     contacts_already_scraped = bigquery_service.verify_if_contacts_was_scraped(Config.DESTINATION_TABLE_NAME, contacts_urls)
-
+    logger.info(f"✅ Contacts already scraped: {contacts_already_scraped}")
     
     contacts_not_scraped = contacts_already_scraped[contacts_already_scraped.web_linkedin_url.isin(contacts_urls)]
- 
+    logger.info(f"✅ Contacts not scraped: {contacts_not_scraped}")
     if contacts_not_scraped.empty:
         return jsonify({
             "success": True,
@@ -413,8 +416,8 @@ def post_contacts_enrichment():
             "timestamp": datetime.now().isoformat()
         }), 200
 
-    contacts_not_scraped = contacts_not_scraped.to_dict(orient="records")
-
+    data = contacts_not_scraped.to_dict(orient="records")
+    logger.info(f"✅ Contacts not scraped: {contacts_not_scraped}")
     try:
         logger.info(f"✅ Datos recibidos: {data}")
         logger.info(f"✅ URL: {url}")
