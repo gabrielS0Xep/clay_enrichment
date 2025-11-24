@@ -19,7 +19,7 @@ class Config:
     # Configuración BigQuery
     BIGQUERY_DATASET = os.getenv('BIGQUERY_DATASET', 'raw_in_scrapper')
     SOURCE_TABLE_NAME = os.getenv('GOOGLE_BIGQUERY_TABLE','clay_scraped_companies')
-    DESTINATION_TABLE_NAME = os.getenv("GOOGLE_BIGQUERY_TABLE_DESTINATION","clay_scraped_contacts")
+    DESTINATION_TABLE_NAME = os.getenv("GOOGLE_BIGQUERY_TABLE_DESTINATION","clay_contacts_info")
     # Configuración Pub/Sub
     PUBSUB_TOPIC_CONTACTS = os.getenv('PUBSUB_TOPIC_CONTACTS', 'enriched_contacts')
     PUBSUB_TOPIC_COMPANIES = os.getenv('PUBSUB_TOPIC_COMPANIES', 'scraped_companies')

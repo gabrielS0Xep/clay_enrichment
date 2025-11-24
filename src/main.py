@@ -405,26 +405,36 @@ def post_contacts_enrichment():
         ]
         logger.info(f"✅ Contacts URLs: {contacts_urls}")
 
-        contacts_already_scraped = bigquery_service.verify_if_contacts_was_scraped(Config.DESTINATION_TABLE_NAME, contacts_urls)
-        logger.info(f"✅ Contacts already scraped: {contacts_already_scraped}")
+        contacts_already_scraped_df = bigquery_service.verify_if_contacts_was_scraped(Config.DESTINATION_TABLE_NAME, contacts_urls)
+        logger.info(f"✅ Contacts already scraped: {contacts_already_scraped_df}")
         
-        contacts_not_scraped = contacts_already_scraped[contacts_already_scraped.web_linkedin_url.isin(contacts_urls)]
-        logger.info(f"✅ Contacts not scraped: {contacts_not_scraped}")
-        if contacts_not_scraped.empty:
+        # Extraer las URLs de los contactos ya scrapeados
+        if contacts_already_scraped_df is not None and not contacts_already_scraped_df.empty:
+            scraped_urls = set(contacts_already_scraped_df['web_linkedin_url'].tolist())
+        else:
+            scraped_urls = set()
+        
+        logger.info(f"✅ Scraped URLs: {scraped_urls}")
+        
+        # Filtrar los contactos que NO fueron scrapeados
+        contacts_not_scraped = [
+            contact for contact in contacts
+            if contact.get("web_linkedin_url") not in scraped_urls
+        ]
+        
+        logger.info(f"✅ Contacts not scraped: {len(contacts_not_scraped)} de {len(contacts)}")
+        
+        if not contacts_not_scraped:
             return jsonify({
                 "success": True,
                 "message": "Todas las contactos ya fueron scrapeadas",
                 "timestamp": datetime.now().isoformat()
             }), 200
-
-        data = contacts_not_scraped.to_dict(orient="records")
-        logger.info(f"✅ Contacts not scraped: {data}")
     
-        logger.info(f"✅ Datos recibidos: {data}")
         logger.info(f"✅ URL: {url}")
-        logger.info(f"tipo de datos: {type(data)}")
-        logger.info(f"tipo de url: {type(url)}")
+        logger.info(f"tipo de datos: {type(contacts_not_scraped)}")
 
+        # El base_payload debe mantener los otros campos del request original (si los hay)
         base_payload = {k: v for k, v in data.items() if k != "contacts"}
         max_payload_bytes = 90 * 1024  # 900KB
 
