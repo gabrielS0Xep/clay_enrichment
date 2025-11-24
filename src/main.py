@@ -437,6 +437,7 @@ def post_contacts_enrichment():
         # El base_payload debe mantener los otros campos del request original (si los hay)
         base_payload = {k: v for k, v in data.items() if k != "contacts"}
         max_payload_bytes = 90 * 1024  # 900KB
+        logger.info(f"✅ Max payload bytes: {max_payload_bytes}")
 
         def payload_size(contacts_chunk: list[dict]) -> int:
             payload = {**base_payload, "contacts": contacts_chunk}
@@ -450,7 +451,7 @@ def post_contacts_enrichment():
             if payload_size(tentative_chunk) <= max_payload_bytes:
                 current_chunk = tentative_chunk
                 continue
-
+            logger.info(f"✅ Current chunk: {current_chunk}")
             if not current_chunk:
                 raise ValueError("CONTACT_PAYLOAD_EXCEEDS_100KB_LIMIT")
 
@@ -461,6 +462,10 @@ def post_contacts_enrichment():
             chunks.append(current_chunk)
 
         logger.info(f"✅ Enviando {len(chunks)} payload(s) a Cloud Tasks")
+        logger.info(f"✅ Chunks: {chunks}")
+        logger.info(f"✅ Base payload: {base_payload}")
+        logger.info(f"✅ Headers: {headers}")
+        logger.info(f"✅ URL: {url}")
 
         for chunk in chunks:
             json_payload = {**base_payload, "contacts": chunk}
