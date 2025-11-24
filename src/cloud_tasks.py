@@ -20,6 +20,7 @@ class CloudTasks:
         scheduled_seconds_from_now: Optional[int] = None,
         task_id: Optional[str] = None,
         deadline_in_seconds: Optional[int] = None,
+        headers: Optional[Dict] = None,
     ) -> tasks_v2.Task:
         """Create an HTTP POST task with a JSON payload.
         Args:
@@ -43,7 +44,7 @@ class CloudTasks:
             http_request=tasks_v2.HttpRequest(
                 http_method=tasks_v2.HttpMethod.POST,
                 url=url,
-                headers={"Content-type": "application/json"},
+                headers=headers,
                 body=json.dumps(json_payload).encode(),
             ),
             name=(

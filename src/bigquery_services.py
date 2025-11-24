@@ -158,8 +158,79 @@ class BigQueryService:
                 raise Exception("RATE_LIMIT_EXCEEDED: BigQuery quota exceeded. Please try again later.")
             else:
                 raise Exception(f"BIGQUERY_ERROR: {error_message}")
-            
-    def push_to_pubsub(self, data:Dict):
-        """Push data to pubsub"""
+
+    def update_companies_scraped_status(self, table_name:str, companies_status:list[str]):
+
+        return None
+
+    def verify_if_company_was_scraped(self, table_name:str, companies_status:list[dict]) -> list[dict]:
+        """Verifica si la empresa fue scrapeada"""
+        dataset_id = self.__dataset
+        table_id = table_name
+        project_id = self.__project_id
         
-    
+        try:
+            if not companies_status:
+                return []
+
+            identifiers = [
+                company.get("biz_identifier")
+                for company in companies_status
+                if company.get("biz_identifier")
+            ]
+
+            if not identifiers:
+                logger.warning("⚠️ Lista de empresas sin biz_identifier válido")
+                raise Exception("LIST_OF_COMPANIES_WITHOUT_VALID_BIZ_IDENTIFIER")
+
+            query = f"""
+                SELECT biz_identifier, biz_name, scrapping_d, contact_found_flg
+                FROM `{project_id}.{dataset_id}.{table_id}`
+                WHERE biz_identifier IN UNNEST(@biz_identifiers)
+            """
+
+            job_config = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ArrayQueryParameter("biz_identifiers", "STRING", identifiers)
+                ]
+            )
+
+            query_job = self.__bq_client.query(query, job_config=job_config)
+            df_results = (query_job.result())
+            
+            results = df_results.to_dict(orient="records")
+            logger.info(f"✅ Empresas verificadas correctamente: {len(results)}")
+            return results
+
+        except Exception as error_message:
+            logger.error(f"❌ Error verificando si la empresa fue scrapeada: {error_message}")
+            return None
+
+    def verify_if_contacts_was_scraped(self, table_name:str, contacts_urls:list[str]) -> list[str]:
+        """Verifica si los contactos ya fueron scrapeados"""
+        dataset_id = self.__dataset
+        table_id = table_name
+        project_id = self.__project_id
+        
+        try:
+            if not contacts_urls:
+                return []
+
+            query = f"""
+            SELECT * FROM `{project_id}.{dataset_id}.{table_id}` WHERE web_linkedin_url IN UNNEST(@web_linkedin_urls)
+            """
+
+            job_config = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ArrayQueryParameter("web_linkedin_urls", "STRING", contacts_urls)
+                ]
+            )
+
+            query_job = self.__bq_client.query(query, job_config=job_config)
+            df_results = (query_job.result())
+            results = df_results.to_dict(orient="records")
+            return results
+
+        except Exception as error_message:
+            logger.error(f"❌ Error verificando si los contactos fueron scrapeados: {error_message}")
+            return None

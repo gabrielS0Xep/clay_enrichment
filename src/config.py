@@ -36,6 +36,11 @@ class Config:
     # Service Account Configuration - múltiples opciones
     # GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')  
     
+    # Configuraciones de Clay
+    CLAY_WEBHOOK_CONTACTS_URL = os.getenv('CLAY_WEBHOOK_URL', 'https://api.clay.com/v3/sources/webhook/pull-in-data-from-a-webhook-6b71c86f-e6b9-47bb-a355-9d38c07488fe')
+    CLAY_WEBHOOK_CONTACTS_KEY = os.getenv('CLAY_WEBHOOK_KEY', '')
+    CLAY_WEBHOOK_CONTACTS_HEADER = os.getenv('CLAY_WEBHOOK_HEADER', 'x-clay-webhook-auth')
+    
     # Configuración Flask
     FLASK_HOST = os.getenv('FLASK_HOST', '0.0.0.0')
     PORT = int(os.getenv('PORT', '5000'))
