@@ -403,8 +403,9 @@ def post_contacts_enrichment():
 
     contacts_already_scraped = bigquery_service.verify_if_contacts_was_scraped(Config.DESTINATION_TABLE_NAME, contacts_urls)
 
-    contacts_not_scraped = [ contact for contact in contacts if contact.get("web_linkedin_url") not in contacts_already_scraped.get("web_linkedin_url") ]
-
+    
+    contacts_not_scraped = contacts_already_scraped[contacts_already_scraped.web_linkedin_url.isin(contacts_urls)]
+ 
     if not contacts_not_scraped:
         return jsonify({
             "success": True,
@@ -412,7 +413,7 @@ def post_contacts_enrichment():
             "timestamp": datetime.now().isoformat()
         }), 200
 
-    
+    contacts_not_scraped = contacts_not_scraped.to_dict(orient="records")
 
     try:
         logger.info(f"✅ Datos recibidos: {data}")
