@@ -229,7 +229,7 @@ class BigQueryService:
             query_job = self.__bq_client.query(query, job_config=job_config)
             df_results = (query_job.result())
             results = df_results.to_dataframe()
-            return results.to_dict(orient="records")
+            return results
 
         except Exception as error_message:
             logger.error(f"❌ Error verificando si los contactos fueron scrapeados: {error_message}")
