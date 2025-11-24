@@ -219,16 +219,19 @@ class BigQueryService:
             query = f"""
             SELECT * FROM `{project_id}.{dataset_id}.{table_id}` WHERE web_linkedin_url IN UNNEST(@web_linkedin_urls)
             """
+            logger.info(f"✅ Query: {query}")
 
             job_config = bigquery.QueryJobConfig(
                 query_parameters=[
                     bigquery.ArrayQueryParameter("web_linkedin_urls", "STRING", contacts_urls)
                 ]
             )
-
+            logger.info(f"✅ Job config: {job_config}")
             query_job = self.__bq_client.query(query, job_config=job_config)
             df_results = (query_job.result())
+            logger.info(f"✅ Results: {df_results}")
             results = df_results.to_dataframe()
+            logger.info(f"✅ Results: {results}")
             return results
 
         except Exception as error_message:
