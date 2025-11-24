@@ -382,7 +382,7 @@ def post_contacts_enrichment():
 
     headers = {
         "Content-type": "application/json",
-        f'"{Config.CLAY_WEBHOOK_CONTACTS_HEADER}"': f'"{Config.CLAY_WEBHOOK_CONTACTS_KEY}"'
+        f'"{Config.CLAY_WEBHOOK_HEADER}"': f'"{Config.CLAY_WEBHOOK_KEY}"'
     }
     
 
