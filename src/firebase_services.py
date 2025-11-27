@@ -5,18 +5,16 @@ from logging import Logger
 import logging
 # Inicialización del cliente de Firestore.
 logger: Logger = logging.getLogger(__name__)
-class FirebaseService:
+class FirestoreService:
 
-    def __init__(self, project:str, database:str = 'enrichment'):
+    def __init__(self, project:str):
         try:
-            self.db: Client = firestore.Client(project=project, database=database)
-            logger.info(f"✅ Cliente de Firestore inicializado: proyecto={project}, base_datos={database}")
+            self.db: Client = firestore.Client(project=project)
+            logger.info(f"✅ Cliente de Firestore inicializado: proyecto={project}")
         except Exception as e:
             logger.error(
                 f"❌ Error inicializando cliente de Firestore: {e}\n"
                 f"   Proyecto: {project}\n"
-                f"   Base de datos: {database}\n"
-                f"   Verifica que la base de datos existe en: https://console.cloud.google.com/firestore/databases?project={project}"
             )
             raise
 
