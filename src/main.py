@@ -4,6 +4,7 @@ from config import Config
 import logging
 from bigquery_services import BigQueryService
 from pub_sub_services import PubSubService
+from firebase_services import FirebaseService
 import time 
 from datetime import datetime, date
 from functools import wraps
@@ -464,8 +465,47 @@ def post_contacts_enrichment():
         logger.info(f"✅ Enviando {len(chunks)} payload(s) a Cloud Tasks")
         logger.info(f"✅ Chunks: {chunks}")
         logger.info(f"✅ Base payload: {base_payload}")
-        logger.info(f"✅ Headers: {headers}")
         logger.info(f"✅ URL: {url}")
+
+        # Validar y actualizar contadores en Firebase antes de enviar
+        try:
+
+            firebase_service = FirebaseService(project=Config.FIREBASE_PROJECT_ID)
+            limit = int(Config.CLAY_LIMITS) if Config.CLAY_LIMITS else 50000
+            documents_names = [Config.FIREBASE_DOCUMENT_TABLES, Config.FIREBASE_DOCUMENT_REQUEST_APOLLO, Config.FIREBASE_DOCUMENT_REQUEST_IMPORT]
+            for document_name in documents_names:
+                
+                limit_exceeded, advertising_threshold_exceeded = firebase_service.validate_limit_and_advertising_threshold(
+                    collection=Config.FIREBASE_COLLECTION,
+                    document_name=document_name,
+                    new_count= len(contacts_not_scraped) if document_name == Config.FIREBASE_DOCUMENT_TABLES else len(chunks) ,
+                    advertising_threshold=int(Config.CLAY_LIMIT_ADVERTISING) if Config.CLAY_LIMIT_ADVERTISING else 40000,
+                    limit=limit
+                )
+                if limit_exceeded:
+                    return jsonify({
+                        "success": False,
+                        "error": f"Límite excedido en el documento: {document_name}",
+                        "timestamp": datetime.now().isoformat()
+                    }), 429
+                
+                
+            for document_name in documents_names:
+                firebase_service.increment_current_count(
+                    collection=Config.FIREBASE_COLLECTION,
+                    document_name=document_name,
+                    increment=len(chunks)
+                )
+            
+            logger.info(f"✅ Firebase contadores actualizados: {documents_names}")
+        except Exception as firebase_error:
+            error_message = str(firebase_error)
+            logger.error(f"❌ Error validando límites en Firebase: {error_message}")
+            return jsonify({
+                "success": False,
+                "error": f"Error interno del servidor: {error_message}",
+                "timestamp": datetime.now().isoformat()
+            }), 500
 
         for chunk in chunks:
             json_payload = {**base_payload, "contacts": chunk}

@@ -29,9 +29,6 @@ class Config:
     CLOUD_TASKS_URL = os.getenv('CLOUD_TASKS_URL', 'https://api.clay.com/v3/sources/webhook/pull-in-data-from-a-webhook-6b71c86f-e6b9-47bb-a355-9d38c07488fe')
 
     """Clase de configuración para el Waterfall Enrichment"""
-   
-    # scrapper_secret = secretManager.get_secret('linkedin_scrapper')
-
 
     # Service Account Configuration - múltiples opciones
     # GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')  
@@ -40,7 +37,19 @@ class Config:
     CLAY_WEBHOOK_URL = os.getenv('CLAY_WEBHOOK_URL', 'https://api.clay.com/v3/sources/webhook/pull-in-data-from-a-webhook-6b71c86f-e6b9-47bb-a355-9d38c07488fe')
     CLAY_WEBHOOK_KEY = os.getenv('CLAY_WEBHOOK_KEY', '')
     CLAY_WEBHOOK_HEADER = os.getenv('CLAY_WEBHOOK_HEADER', 'x-clay-webhook-auth')
+    CLAY_LIMITS = os.getenv('CLAY_LIMITS', '50000')
+    CLAY_LIMIT_ADVERTISING = os.getenv('CLAY_LIMIT_ADVERTISING', '40000')
+
+    #Configuración de Firebase
+    FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID', 'qa-cdp-mx')
+    FIREBASE_COLLECTION = os.getenv('FIREBASE_COLLECTION', 'enrichment')
+
+
+    FIREBASE_DOCUMENT_REQUEST_IMPORT = os.getenv('FIREBASE_DOCUMENT_REQUEST_IMPORT', 'request_webhook_import')
+    FIREBASE_DOCUMENT_REQUEST_APOLLO = os.getenv('FIREBASE_DOCUMENT_REQUEST_APOLLO', 'request_apollo')
+    FIREBASE_DOCUMENT_TABLES = os.getenv('FIREBASE_DOCUMENT_TABLES', 'quantity_on_table_import')
     
+
     # Configuración Flask
     FLASK_HOST = os.getenv('FLASK_HOST', '0.0.0.0')
     PORT = int(os.getenv('PORT', '5000'))
@@ -55,6 +64,7 @@ class Config:
     MAX_BATCH_SIZE = int(os.getenv('MAX_BATCH_SIZE', '1000'))
     BATCH_TIMEOUT = int(os.getenv('BATCH_TIMEOUT', '600'))  # 10 minutos para batch completo
     INDIVIDUAL_TIMEOUT = int(os.getenv('INDIVIDUAL_TIMEOUT', '120'))  # 2 minutos por empresa
+
 
     @classmethod
     def validate(cls):
