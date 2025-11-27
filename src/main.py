@@ -471,7 +471,7 @@ def post_contacts_enrichment():
         try:
 
             firebase_service = FirestoreService(project=Config.FIREBASE_PROJECT_ID, database=Config.FIREBASE_DATABASE)
-            limit = int(Config.CLAY_LIMITS) if Config.CLAY_LIMITS else 50000
+            limit = int(Config.CLAY_LIMITS)
             documents_names = [Config.FIREBASE_DOCUMENT_TABLES, Config.FIREBASE_DOCUMENT_REQUEST_APOLLO, Config.FIREBASE_DOCUMENT_REQUEST_IMPORT]
             for document_name in documents_names:
                 logger.info(f"Collection: {Config.FIREBASE_COLLECTION}")
@@ -480,11 +480,13 @@ def post_contacts_enrichment():
                 logger.info(f"✅ Advertising threshold: {int(Config.CLAY_LIMIT_ADVERTISING) if Config.CLAY_LIMIT_ADVERTISING else 40000}")
                 logger.info(f"✅ Limit: {limit}")
                 logger.info(f"✅ Document name: {document_name}")
+                count_to_increment = len(contacts_not_scraped) if document_name == Config.FIREBASE_DOCUMENT_TABLES else len(chunks)
+                logger.info(f"✅ Count to increment: {count_to_increment}")
                 limit_exceeded, advertising_threshold_exceeded = firebase_service.validate_limit_and_advertising_threshold(
                     collection=Config.FIREBASE_COLLECTION,
                     document_name=document_name,
-                    new_count= len(contacts_not_scraped) if document_name == Config.FIREBASE_DOCUMENT_TABLES else len(chunks) ,
-                    advertising_threshold=int(Config.CLAY_LIMIT_ADVERTISING) if Config.CLAY_LIMIT_ADVERTISING else 40000,
+                    new_count= count_to_increment,
+                    advertising_threshold=int(Config.CLAY_LIMIT_ADVERTISING),
                     limit=limit
                 )
                 if limit_exceeded:
