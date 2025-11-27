@@ -480,7 +480,7 @@ def post_contacts_enrichment():
                 logger.info(f"✅ Advertising threshold: {int(Config.CLAY_LIMIT_ADVERTISING) if Config.CLAY_LIMIT_ADVERTISING else 40000}")
                 logger.info(f"✅ Limit: {limit}")
                 logger.info(f"✅ Document name: {document_name}")
-                count_to_increment = len(contacts_not_scraped) if document_name == Config.FIREBASE_DOCUMENT_TABLES else len(chunks)
+                count_to_increment = len(chunks)
                 logger.info(f"✅ Count to increment: {count_to_increment}")
                 limit_exceeded, advertising_threshold_exceeded = firebase_service.validate_limit_and_advertising_threshold(
                     collection=Config.FIREBASE_COLLECTION,
