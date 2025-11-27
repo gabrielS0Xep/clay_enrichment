@@ -470,7 +470,7 @@ def post_contacts_enrichment():
         # Validar y actualizar contadores en Firebase antes de enviar
         try:
 
-            firebase_service = FirestoreService(project=Config.FIREBASE_PROJECT_ID)
+            firebase_service = FirestoreService(project=Config.FIREBASE_PROJECT_ID, database=Config.FIREBASE_DATABASE)
             limit = int(Config.CLAY_LIMITS) if Config.CLAY_LIMITS else 50000
             documents_names = [Config.FIREBASE_DOCUMENT_TABLES, Config.FIREBASE_DOCUMENT_REQUEST_APOLLO, Config.FIREBASE_DOCUMENT_REQUEST_IMPORT]
             for document_name in documents_names:

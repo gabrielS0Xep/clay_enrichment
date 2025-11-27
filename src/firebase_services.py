@@ -7,9 +7,9 @@ import logging
 logger: Logger = logging.getLogger(__name__)
 class FirestoreService:
 
-    def __init__(self, project:str):
+    def __init__(self, project:str, database:str):
         try:
-            self.db: Client = firestore.Client(project=project)
+            self.db: Client = firestore.Client(project=project,database=database)
             logger.info(f"✅ Cliente de Firestore inicializado: proyecto={project}")
         except Exception as e:
             logger.error(
