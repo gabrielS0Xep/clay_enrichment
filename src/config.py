@@ -42,6 +42,8 @@ class Config:
 
     #Configuración de Firebase
     FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID', 'qa-cdp-mx')
+    # Para bases de datos específicas, usa el nombre. Para la base de datos por defecto, usa '(default)'
+    FIREBASE_DATABASE = os.getenv('FIREBASE_DATABASE', 'leads')
     FIREBASE_COLLECTION = os.getenv('FIREBASE_COLLECTION', 'enrichment')
 
 

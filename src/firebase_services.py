@@ -7,8 +7,18 @@ import logging
 logger: Logger = logging.getLogger(__name__)
 class FirebaseService:
 
-    def __init__(self, project:str):
-        self.db: Client = firestore.Client(project=project)
+    def __init__(self, project:str, database:str = 'enrichment'):
+        try:
+            self.db: Client = firestore.Client(project=project, database=database)
+            logger.info(f"✅ Cliente de Firestore inicializado: proyecto={project}, base_datos={database}")
+        except Exception as e:
+            logger.error(
+                f"❌ Error inicializando cliente de Firestore: {e}\n"
+                f"   Proyecto: {project}\n"
+                f"   Base de datos: {database}\n"
+                f"   Verifica que la base de datos existe en: https://console.cloud.google.com/firestore/databases?project={project}"
+            )
+            raise
 
     def get_current_count(self,collection:str, document_name:str) -> int:
         return self.db.collection(collection).document(document_name).get().to_dict()['count']
