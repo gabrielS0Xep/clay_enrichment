@@ -2,6 +2,7 @@ from slack import WebClient
 from slack.errors import SlackApiError
 from config import Config
 import logging
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 

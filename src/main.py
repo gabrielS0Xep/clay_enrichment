@@ -382,7 +382,7 @@ def post_contacts_enrichment():
     """
     try:
         bigquery_service, _, cloud_tasks_service = get_services()
-        slack_service = SlackService()
+        slack_service = SlackService(bot_token=Config.SLACK_BOT_TOKEN, channel=Config.SLACK_CHANNEL)
         url = Config.CLAY_WEBHOOK_URL
 
         headers = {
@@ -506,8 +506,8 @@ def post_contacts_enrichment():
                     document_name=document_name,
                     increment=len(chunks)
                 )
-
-            slack_service.send_message(f"Enriquecimiento creado correctamente para las empresas no scrapeadas: {len(contacts_not_scraped)}")
+            message = slack_service.format_message(f"Enriquecimiento creado correctamente para las empresas no scrapeadas: {len(contacts_not_scraped)}")
+            slack_service.send_message(message)
             logger.info(f"✅ Firebase contadores actualizados: {documents_names}")
         except Exception as firebase_error:
             error_message = str(firebase_error)
