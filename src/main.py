@@ -506,8 +506,11 @@ def post_contacts_enrichment():
                     document_name=document_name,
                     increment=len(chunks)
                 )
-            message = slack_service.format_message(f"Enriquecimiento creado correctamente para las empresas no scrapeadas: {len(contacts_not_scraped)}")
+            logger.info(f"✅ Enriquecimiento creado correctamente para las empresas no scrapeadas: {len(contacts)}")
+            message = slack_service.format_message(f"Enriquecimiento creado correctamente para las empresas no scrapeadas: {len(contacts)}")
+            logger.info(f"✅ Message: {message}")
             slack_service.send_message(message)
+            logger.info(f"✅ Message sent to Slack")
             logger.info(f"✅ Firebase contadores actualizados: {documents_names}")
         except Exception as firebase_error:
             error_message = str(firebase_error)
