@@ -53,7 +53,7 @@ class Config:
     
 
     SLACK_BOT_TOKEN = os.getenv('SLACK_BOT_TOKEN', '')
-    SLACK_CHANNEL = os.getenv('SLACK_CHANNEL', 'waterfall-enrichment')
+    SLACK_CHANNEL = os.getenv('SLACK_CHANNEL', 'avisos-enrichment')
 
     # Configuración Flask
     FLASK_HOST = os.getenv('FLASK_HOST', '0.0.0.0')

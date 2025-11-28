@@ -5,7 +5,9 @@ import logging
 from bigquery_services import BigQueryService
 from pub_sub_services import PubSubService
 from firebase_services import FirestoreService
+from slack_service import SlackService
 import time 
+
 from datetime import datetime, date
 from functools import wraps
 from cloud_tasks import CloudTasks
