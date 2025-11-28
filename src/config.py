@@ -47,10 +47,13 @@ class Config:
     FIREBASE_COLLECTION = os.getenv('FIREBASE_COLLECTION', 'enrichment')
 
 
-    FIREBASE_DOCUMENT_REQUEST_IMPORT = os.getenv('FIREBASE_DOCUMENT_REQUEST_IMPORT', 'request_webhook_import')
-    FIREBASE_DOCUMENT_REQUEST_APOLLO = os.getenv('FIREBASE_DOCUMENT_REQUEST_APOLLO', 'request_apollo')
+    FIREBASE_DOCUMENT_REQUEST_IMPORT = os.getenv('FIREBASE_DOCUMENT_REQUEST_IMPORT', 'requests_webhook_import')
+    FIREBASE_DOCUMENT_REQUEST_APOLLO = os.getenv('FIREBASE_DOCUMENT_REQUEST_APOLLO', 'requests_webhook_apollo')
     FIREBASE_DOCUMENT_TABLES = os.getenv('FIREBASE_DOCUMENT_TABLES', 'quantity_on_table_import')
     
+
+    SLACK_BOT_TOKEN = os.getenv('SLACK_BOT_TOKEN', '')
+    SLACK_CHANNEL = os.getenv('SLACK_CHANNEL', 'waterfall-enrichment')
 
     # Configuración Flask
     FLASK_HOST = os.getenv('FLASK_HOST', '0.0.0.0')
