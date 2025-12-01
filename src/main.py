@@ -493,6 +493,12 @@ def post_contacts_enrichment():
                     limit=limit
                 )
                 if limit_exceeded:
+                    message = slack_service.format_message(
+                        {
+                            "text": f"Límite excedido en el documento: {document_name} con el valor de {count_to_increment} y el límite es {limit}, si es una tabla se debe borrar las filas, si es un webhook se debe crear un nuevo webhook y cambiar la variable del url en cloud Run"
+                        }
+                    )
+                    slack_service.send_message(message)
                     return jsonify({
                         "success": False,
                         "error": f"Límite excedido en el documento: {document_name}",
