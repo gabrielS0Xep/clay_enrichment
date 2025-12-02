@@ -465,26 +465,13 @@ def post_contacts_enrichment():
         if current_chunk:
             chunks.append(current_chunk)
 
-        logger.info(f"✅ Enviando {len(chunks)} payload(s) a Cloud Tasks")
-        logger.info(f"✅ Chunks: {chunks}")
-        logger.info(f"✅ Base payload: {base_payload}")
-        logger.info(f"✅ URL: {url}")
-
-        # Validar y actualizar contadores en Firebase antes de enviar
         try:
 
             firebase_service = FirestoreService(project=Config.FIREBASE_PROJECT_ID, database=Config.FIREBASE_DATABASE)
             limit = int(Config.CLAY_LIMITS)
             documents_names = [Config.FIREBASE_DOCUMENT_TABLES, Config.FIREBASE_DOCUMENT_REQUEST_APOLLO, Config.FIREBASE_DOCUMENT_REQUEST_IMPORT]
             for document_name in documents_names:
-                logger.info(f"Collection: {Config.FIREBASE_COLLECTION}")
-                logger.info(f"✅ Validando límites en Firebase para el documento: {document_name}")
-                logger.info(f"✅ New count: {len(contacts_not_scraped) if document_name == Config.FIREBASE_DOCUMENT_TABLES else len(chunks)}")
-                logger.info(f"✅ Advertising threshold: {int(Config.CLAY_LIMIT_ADVERTISING) if Config.CLAY_LIMIT_ADVERTISING else 40000}")
-                logger.info(f"✅ Limit: {limit}")
-                logger.info(f"✅ Document name: {document_name}")
                 count_to_increment = len(chunks)
-                logger.info(f"✅ Count to increment: {count_to_increment}")
                 limit_exceeded, advertising_threshold_exceeded = firebase_service.validate_limit_and_advertising_threshold(
                     collection=Config.FIREBASE_COLLECTION,
                     document_name=document_name,
@@ -504,8 +491,14 @@ def post_contacts_enrichment():
                         "error": f"Límite excedido en el documento: {document_name}",
                         "timestamp": datetime.now().isoformat()
                     }), 429
-                
-                
+                if advertising_threshold_exceeded:
+                    message = slack_service.format_message(
+                        {
+                            "text": f"Umbral de advertising excedido en el documento: {document_name} con el valor de {count_to_increment} y el umbral es {int(Config.CLAY_LIMIT_ADVERTISING)}"
+                        }
+                    )
+                    slack_service.send_message(message)
+
             for document_name in documents_names:
                 firebase_service.increment_current_count(
                     collection=Config.FIREBASE_COLLECTION,
@@ -515,13 +508,13 @@ def post_contacts_enrichment():
             logger.info(f"✅ Enriquecimiento creado correctamente para las empresas no scrapeadas: {len(contacts)}")
             message = slack_service.format_message(
                 {
-                    "text": f"Enriquecimiento creado correctamente para las empresas no scrapeadas: {len(contacts)}"
+                    "text": f"Enriquecimiento creado correctamente para {len(contacts)} Contactos no scrapeados"
                 }
             )
-            logger.info(f"✅ Message: {message}")
             slack_service.send_message(message)
-            logger.info(f"✅ Message sent to Slack")
-            logger.info(f"✅ Firebase contadores actualizados: {documents_names}")
+            
+
+
         except Exception as firebase_error:
             error_message = str(firebase_error)
             logger.error(f"❌ Error validando límites en Firebase: {error_message}")
